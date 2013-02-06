@@ -9,12 +9,13 @@ The basic premise is
       work
       <short break>
     )
-    repeat 5 times
+    repeat 4 times
     replace last <short break> with <long break>
   )
   repeat while working
 
-...for optimal productivity.
+...for optimal productivity.  For further details, see
+http://en.wikipedia.org/wiki/Pomodoro_Technique .
 
 One can create a $HOME/worklist file that helps
 the computer prompt the human for what to work on.
