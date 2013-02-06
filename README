@@ -1,0 +1,65 @@
+Originally inspired from some very basic shellcode from
+Thordur Bjornsson this time slicing of human time initiated
+by computer application has grown a bit since it began.
+
+The basic premise is
+
+  (
+(
+  work
+  <short break>
+)
+repeat 5 times
+replace last <short break> with <long break>
+  
+  )
+  repeat while working
+
+...for optimal productivity.
+
+One can create a $HOME/worklist file that helps
+the computer prompt the human for what to work on.
+
+It looks like this (indented for clarity here, the
+'o project' must be left aligned and whitespace is
+only supported as spaces at this time):
+
+    o project
+     o subproject
+      o details per subproject
+        can even wrap around
+     o subproject2
+    o project2
+
+And xtomato will automatically select the first project and the first
+subproject for the first work task, presenting subsequent projects
+and cycling through the subprojects of each project as applicable.
+
+  "It takes the 'human time' out of deciding what to do next"
+
+This is an even-steven algorithm.  In the future it is desirable
+to give some projects 'weight' and some subprojects 'weight' so they
+get more time slots than others.  Someday we can all say "pay me more
+to get more weight to a 'project'" or even let others decide what weight
+the subprojects associated with their desires get.
+
+I personally feel much more productive while using this application now.
+
+As always, if you feel the need to let me know what you think, especially
+in the form of bugfixes, diffs, or pull requests, let me know at
+todd@fries.net.
+
+Thanks,
+-- 
+Todd Fries .. todd@fries.net
+
+ ____________________________________________
+|                                            \  1.636.410.0632 (voice)
+| Free Daemon Consulting, LLC                \  1.405.227.9094 (voice)
+| http://FreeDaemonConsulting.com            \  1.866.792.3418 (FAX)
+| PO Box 16169, Oklahoma City, OK 73113      \  sip:freedaemon@ekiga.net
+| "..in support of free software solutions." \  sip:4052279094@ekiga.net
+ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                                 
+              37E7 D3EB 74D0 8D66 A68D  B866 0326 204E 3F42 004A
+                        http://todd.fries.net/pgp.txt
