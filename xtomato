@@ -1,0 +1,214 @@
+#!/bin/ksh
+
+# Copyright (c) 2013 Todd T. Fries <todd@fries.net>
+#
+# Permission to use, copy, modify, and distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+DING="~/tmp/drumhit.wav"
+GENBUTTON="ACK"
+PAUSEBUTTON="PAUSE"
+EXITBUTTON="EXIT"
+WORKLIST=~/worklist
+
+tty=`tty`
+tty=`basename $tty`
+TTY=${TTY:-$tty}
+sound=1
+td=$(mktemp -d /tmp/xtomato.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)
+trap 'rm -rf $td' 0 1 2 3 13 15
+
+msg() {
+	local sleep="" sleeparg="$1" gb="$2" canpause="$3" pb="" origsleeparg
+	if [ sound -eq 1 -a -f ${DING} ]; then
+		aucat -v 50 -i ${DING}
+	fi
+	if ! [ "$gb" ]; then
+		gb="$GENBUTTON"
+	fi
+	if [ "$sleeparg" -a "$canpause" -a "$canpause" -eq "1" ]; then
+		pb=",$PAUSEBUTTON:2"
+		origsleeparg="$sleeparg"
+	fi
+	
+	while :
+	do
+	local start=$SECONDS dur
+	if [ "$sleeparg" ]; then
+		sleep=" -timeout $sleeparg "
+	fi
+	button=$(xmessage $sleep -print -center \
+	    -buttons $gb:0,$EXITBUTTON:1$pb -default $gb -file $td/msg)
+	case "$button" in
+	$GENBUTTON) return 0;;
+	$EXITBUTTON) exit;;
+	$PAUSEBUTTON)
+		let dur=$SECONDS-$start
+		mv $td/msg $td/msg.save
+		echo "${dur}s passed since start, pausing with $((sleeparg-dur))s left out of $origsleeparg" > $td/msg
+		msg "" "Unpause"
+		mv $td/msg.save $td/msg
+		# logically this should never trigger, but just incase..
+		if [ dur -gt sleeparg ]; then
+			return 0
+		fi
+		let sleeparg=sleeparg-dur
+	;;
+	*) return 1;;
+	esac
+	done
+}
+
+dobreak() {
+	local sleep="$1" project="$2" info="$3" stop
+	local projinfo="$project: T-${sleep}s and counting"
+	{
+		[ "$prevmsg" ] && echo "[$prevmsg]"
+		echo "$(date +"%Y%m%d %H:%M:%S") Started"
+		echo "$projinfo"
+		[ "$info" ] && echo "$info"
+	} > $td/msg
+	let stop=SECONDS+sleep
+	msg $sleep DONE 1
+	ret=$?
+	if ! ((ret < 1)); then
+		echo "$projinfo: ${sleep}s done!" > $td/msg
+		msg
+	fi
+	prevmsg="$project: lasted $((sleep+SECONDS-stop))s ended $(date +"%Y %H:%M:%S")"
+}
+
+filter4re() {
+	local re="$1"
+	echo "$1" | sed 's/\//\\\//g'
+}
+
+set -A projects
+set -A info
+set -A subprojects
+loadworklist() {
+	[ -f $WORKLIST ] || return
+	if ((verbose > 1)); then
+		set -x
+	fi
+	set -A projects $( awk '/^[\/o] /{$1 = "";sub("^[ ]*",""); print}' $WORKLIST)
+	set -A info
+	set -A subprojects
+	set -A subrangestart
+	set -A subrangestop
+	set -A subcurrent
+	set -A subinfo
+	local i=0
+	while [ i -lt ${#projects[*]} ]
+	do
+		project=${projects[i]}
+		awk '
+			BEGIN {start=0}
+			/^[\/o] '"$project"'$/ {start=1;next}
+			/^[\/o] /{start=0}
+			/^ [\/o] /{if (start == 1) {sub("^[ ]*",""); print; next}}
+		' $WORKLIST > $td/subprojects
+		local j=0 totsub=$(($(wc -l < $td/subprojects) + 0)) k=0 rstart=${#subprojects[*]} rstop
+		while [ j -lt $totsub ]
+		do
+			((j++))
+			subprojects[${#subprojects[*]}]=$(head -$j $td/subprojects | tail -1)
+		done
+		rstop=${#subprojects[*]}
+		subrangestart[i]=$rstart
+		subrangestop[i]=$rstop
+		subcurrent[i]=0
+		echo "Loaded project $project with $((rstop-rstart)) subprojects"
+		info[i]=$(awk 'BEGIN {start=0}/^[\/o] '"$project"'$/ {start=1;next}/^[\/o] /{start=0;next}{if(start == 1) {sub("^ ","");print}}'\
+		    $WORKLIST)
+		j=$rstart
+		k=1
+		while [ j -lt rstop ]
+		do
+			if ((verbose > 0)); then
+				printf "%02d. %s\n" $k "${subprojects[j]}"
+			fi
+			subtmp=${subprojects[j]}
+			subtmp=${subtmp#[/o] *}
+			subinfo[j]=$(awk '
+				BEGIN {start=0;substart=0}
+				/^[\/o] '"$(filter4re "$project")"'$/ {start=1;next}
+				/^ [\/o] '"$(filter4re "$subtmp")"'$/ {substart=1;next}
+				/^[\/o] /{start=0;next}
+				/^ [\/o] /{substart=0;next}
+				{ if (start == 1 && substart == 1) {sub("^ ",""); print}}' $WORKLIST)
+			((k++))
+			((j++))
+		done
+		((i++))
+	done
+}
+
+HACK=$((5 * 60))
+verbose=0
+while [ "$1" ]
+do
+	case "$1" in
+	-t) shift;HACK="$1";shift;;
+	-v) ((verbose++));shift;;
+	-c) [ -f "$2" ] && . $2 || exit 1 ; shift; shift;;
+	*) break;;
+	esac
+done
+SBREAK=$((HACK/10))
+LBREAK=$HACK
+
+loadworklist
+
+echo "Start the cycle ?" > $td/msg
+msg "" "START"
+
+prevmsg=""
+currentproject=-1
+while true; do
+	scounter=1
+
+	while (( scounter < 5 )); do
+		((currentproject++))
+		if ((currentproject >= ${#projects[*]})); then
+			currentproject=0
+		fi
+		rstart=${subrangestart[currentproject]}
+		rstop=${subrangestop[currentproject]}
+		if ((rstart < rstop)); then
+			let subcur=rstart+${subcurrent[currentproject]}
+			let subcurrent[currentproject]=${subcurrent[currentproject]}+1
+			if ((${subcurrent[currentproject]} > (rstop - rstart) )); then
+				let subcurrent[currentproject]=rstart
+				let subcur=rstart
+			fi
+			info=$(printf "%s\n%s" "${subprojects[subcur]}" "${subinfo[subcur]}")
+			if ! [ "$info" ]; then
+				info="rstart=$rstart rstop=$rstop subcur=$subcur"
+				info="$info\ncurrentproject=$currentproject subcurrent[currentproject]=${subcurrent[currentproject]}"
+				info="$info\nsubcur=$subcur subprojects[subcir]=${subprojects[subcur]}"
+			fi
+		else
+			info="rstart=$rstart rstop=$rstop"
+		fi
+		dobreak $HACK "Work(${projects[currentproject]})" "$info"
+
+		[ scounter -lt 4 ] && dobreak ${SBREAK} \
+		    "Record time, drink, check {email, IM, etc.} short break"
+
+		((scounter++))
+	done
+	dobreak ${LBREAK} "Take a long break, hike!"
+	# this clears current subproject statuses, not useful unless some way is found to keep them intact
+	# across reloads
+	#loadworklist
+done
