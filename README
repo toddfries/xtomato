@@ -5,13 +5,12 @@ by computer application has grown a bit since it began.
 The basic premise is
 
   (
-(
-  work
-  <short break>
-)
-repeat 5 times
-replace last <short break> with <long break>
-  
+    (
+      work
+      <short break>
+    )
+    repeat 5 times
+    replace last <short break> with <long break>
   )
   repeat while working
 
