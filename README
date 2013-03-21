@@ -24,12 +24,12 @@ It looks like this (indented for clarity here, the
 'o project' must be left aligned and whitespace is
 only supported as spaces at this time):
 
-    o project
+    o project weight=100
      o subproject
       o details per subproject
         can even wrap around
      o subproject2
-    o project2
+    o project weight=200
 
 And xtomato will automatically select the first project and the first
 subproject for the first work task, presenting subsequent projects
