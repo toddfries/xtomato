@@ -100,7 +100,12 @@ loadworklist() {
 	if ((verbose > 1)); then
 		set -x
 	fi
-	set -A projects $( awk '/^[\/o] /{$1 = "";sub("^[ ]*",""); print}' $WORKLIST)
+	set -A projects $( awk '
+		/^[\/o] /{
+			$1 = "";
+			sub("^[ ]*","");
+			sub(" weight=[0-9]+$","");
+			print}' $WORKLIST)
 	set -A info
 	set -A subprojects
 	set -A subrangestart
