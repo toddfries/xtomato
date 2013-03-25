@@ -1,0 +1,90 @@
+.\" Copyright (c) 2013 Todd T. Fries <todd@fries.net>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.Dd $Mdocdate$
+.Dt XTOMATO 1
+.Os
+.Sh NAME
+.Nm xtomato
+.Nd human time slicing utility
+.Sh SYNOPSIS
+.Nm xtomato
+.Op Fl b
+.Op Fl c Ar config_file
+.Op Fl t Ar hack_time
+.Op Fl T Ar total_hack_time
+.Op Fl v
+.Op Fl w Ar worklist_file
+.Sh DESCRIPTION
+.Nm
+interrupts a human to suggest when to work and when to take a break.
+It can optionally read a
+.Ar worklist
+file and parses it to suggest specific work projects and subprojects.
+See the
+.Sx EXAMPLES
+section below for sample usage.
+.Bl -tag -width Ds
+.It Op Fl b
+Sets the 'bezerk' mode, no breaks.  Named after bezerk mode in doom.
+.It Op Fl c Ar config_file
+Configuration file for over-riding various variables.
+Valid variables for the
+.Ar config_file
+are as follows:
+.Pp
+.Bl -tag -width 11n -offset indent -compact
+.It DING
+set to wav file for audible prompting at the end of hack time,
+defaults to '~/tmp/drumhit.wav'.
+.It EXITBUTTON
+exit button label, defaults to 'EXIT'.
+.It GENBUTTON
+generic button label, defaults to 'ACK'.
+.It HACK
+hack time in seconds, defaults to 300.
+.It PAUSEBUTTON
+pause button label, defaults to 'PAUSE'.
+.It WORKLIST
+worklist file, defaults to '~/worklist'.
+.It sound
+toggle sound on(1) or off(0), defaults to 1.
+.It soundvol
+volume for sound, defaults to 90.
+.El
+.It Op Fl t Ar hack_time
+Hack time in seconds.
+.It Op Fl T Ar total_hack_time
+Total hack time for one complete pass through the list of projects.
+.It Op Fl v
+Verbose.
+Duplicate instances increase verbosity.
+.It Op Fl w Ar worklist_file
+Worklist filename.
+.El
+.Sh ENVIRONMENT
+No environment variables are useful at this time.
+.Sh EXAMPLES
+Worklist example:
+.Bd -literal -offset indent
+o project weight=100
+ o subproject
+  o details per subproject
+    can even wrap around
+ o subproject2
+o project weight=200
+.Ed
+.Sh HISTORY
+This utility was created by
+.An Todd T. Fries Aq todd@fries.net .
