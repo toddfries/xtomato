@@ -37,11 +37,27 @@ and cycling through the subprojects of each project as applicable.
 
   "It takes the 'human time' out of deciding what to do next"
 
-This is an even-steven algorithm.  In the future it is desirable
-to give some projects 'weight' and some subprojects 'weight' so they
-get more time slots than others.  Someday we can all say "pay me more
-to get more weight to a 'project'" or even let others decide what weight
-the subprojects associated with their desires get.
+This is an even-steven algorithm.
+
+There is an in-progress weight system designed to work as the example
+above indicates for specifying the weight of a given project.  This
+will eventually be extended to subprojects.
+
+The purpose of a 'weight' is to give a numeric value which, relative
+to other numeric weights, determines how much time each project should
+have given the typical hack time.  In the above example, if hack time
+is typically 1000s then weight=100 will receive 660s and weight=200 will
+receive 1320s.  Basically the formula goes like this:
+
+	HACK * projectcount = totalhacktime
+
+	projecthacktime = totalhacktime * ( weight / total_of_all_weights )
+
+This is yet to be implemented but at least the program parses the weights.
+
+Someday we can all say "pay me more to get more weight to a 'project'"
+or even let others decide what weight the subprojects associated with
+their desires get.
 
 I personally feel much more productive while using this application now.
 
