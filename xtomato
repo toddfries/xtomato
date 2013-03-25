@@ -198,6 +198,9 @@ do
 	-v)	# verbosity
 		((verbose++));shift
 	;;
+	-w)	# worklist
+		[ -f "$2" ] && WORKLIST="$2" || exit 1; shift; shift
+	;;
 	*) break;;
 	esac
 done
