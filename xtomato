@@ -24,13 +24,14 @@ tty=`tty`
 tty=`basename $tty`
 TTY=${TTY:-$tty}
 sound=1
+soundvol=90
 td=$(mktemp -d /tmp/xtomato.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)
 trap 'rm -rf $td' 0 1 2 3 13 15
 
 msg() {
 	local sleep="" sleeparg="$1" gb="$2" canpause="$3" pb="" origsleeparg
 	if [ sound -eq 1 -a -f ${DING} ]; then
-		aucat -v 50 -i ${DING}
+		aucat -v $soundvol -i ${DING}
 	fi
 	if ! [ "$gb" ]; then
 		gb="$GENBUTTON"
