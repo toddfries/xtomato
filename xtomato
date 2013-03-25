@@ -115,6 +115,7 @@ loadworklist() {
 			next}
 		/^[\/o] /{
 			print "0"} ' $WORKLIST)
+	set -A weightsecs
 	set -A info
 	set -A subprojects
 	set -A subrangestart
@@ -202,6 +203,8 @@ do
 done
 loadworklist
 
+totalweight=0
+totalweightcount=0
 if (( ${#projects[*]} > 0 )); then
 	if (( TOTALHACK > 0 )); then
 		echo "Project time (sbreak): $(( HACK + SBREAK ))s"
@@ -212,6 +215,33 @@ if (( ${#projects[*]} > 0 )); then
 		echo "Guessing HACK = $(( TOTALHACK / ${#projects[*]} - SBREAK ))"
 		HACK=$(( TOTALHACK / ${#projects[*]} - SBREAK ))
 	fi
+	i=0
+	while (( i < ${#weights[*]} ))
+	do
+		if (( weights[i] > 0 )); then
+			((totalweightcount++))
+			let totalweight=totalweight+weights[i]
+		fi
+		((i++))
+	done
+	if (( totalweight < 1 )); then
+		echo "totalweight = $totalweight"
+		exit 1
+	fi
+	i=0
+	while (( i < ${#weights[*]} ))
+	do
+		if (( weights[i] > 0 )); then
+			weightsecs[i]=$( {
+			        echo scale=5
+			        echo "($HACK * ${#projects[*]} * ${weights[i]} ) / $totalweight"
+			    } | bc)
+		else
+			weightsecs=$HACK
+		fi
+		((i++))
+	done
+	
 fi
 if ((bezerk > 0)); then
 	SBREAK=0
@@ -254,7 +284,7 @@ while true; do
 			info="rstart=$rstart rstop=$rstop"
 		fi
 		if [ weights[currentproject] > 0 ]; then
-			weightinfo=" weight=${weights[currentproject]}"
+			weightinfo=" weight=${weights[currentproject]} weightsecs=${weightsecs[currentproject]}"
 		else
 			weightinfo=""
 		fi
