@@ -106,6 +106,14 @@ loadworklist() {
 			sub("^[ ]*","");
 			sub(" weight=[0-9]+$","");
 			print}' $WORKLIST)
+	set -A weights $( awk '
+		/^[\/o] .* weight=[0-9]+$/{
+			$1 = "";
+			sub("^.* weight=","");
+			print;
+			next}
+		/^[\/o] /{
+			print "0"} ' $WORKLIST)
 	set -A info
 	set -A subprojects
 	set -A subrangestart
@@ -132,7 +140,12 @@ loadworklist() {
 		subrangestart[i]=$rstart
 		subrangestop[i]=$rstop
 		subcurrent[i]=0
-		echo "Loaded project $project with $((rstop-rstart)) subprojects"
+		if [ weights[i] > 0 ]; then
+			weightinfo=", weight ${weights[i]}"
+		else
+			weightinfo=""
+		fi
+		echo "Loaded project $project with $((rstop-rstart)) subprojects$weightinfo"
 		info[i]=$(awk 'BEGIN {start=0}
 			/^[\/o] '"$project"'( weight=[0-9]*$|$)/ {start=1;next}
 			/^[\/o] /{start=0;next}
@@ -233,13 +246,18 @@ while true; do
 			info=$(printf "%s\n%s" "${subprojects[subcur]}" "${subinfo[subcur]}")
 			if ! [ "$info" ]; then
 				info="rstart=$rstart rstop=$rstop subcur=$subcur"
-				info="$info\ncurrentproject=$currentproject subcurrent[currentproject]=${subcurrent[currentproject]}"
+				info="$info\ncurrentproject=$currentproject ${weightinfo}subcurrent[currentproject]=${subcurrent[currentproject]}"
 				info="$info\nsubcur=$subcur subprojects[subcir]=${subprojects[subcur]}"
 			fi
 		else
 			info="rstart=$rstart rstop=$rstop"
 		fi
-		dobreak $HACK "Work(${projects[currentproject]})" "$info"
+		if [ weights[currentproject] > 0 ]; then
+			weightinfo=" weight=${weights[currentproject]}"
+		else
+			weightinfo=""
+		fi
+		dobreak $HACK "Work(${projects[currentproject]}$weightinfo)" "$info"
 
 		[ scounter -lt 4 ] && dobreak ${SBREAK} \
 		    "Record time, drink, check {email, IM, etc.} short break"
