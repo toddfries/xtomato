@@ -25,8 +25,12 @@ tty=`basename $tty`
 TTY=${TTY:-$tty}
 sound=1
 soundvol=90
-td=$(mktemp -d /tmp/xtomato.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)
-trap 'rm -rf $td' 0 1 2 3 13 15
+TMPDIR=${TMPDIR:-/tmp}
+if ! [ -d "$TMPDIR" ]; then
+	TMPDIR=/tmp
+fi
+td=$(mktemp -d "$TMPDIR"/xtomato.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)
+trap 'rm -rf "$td"' 0 1 2 3 13 15
 
 msg() {
 	local sleep="" sleeparg="$1" gb="$2" canpause="$3" pb="" origsleeparg
@@ -48,16 +52,16 @@ msg() {
 		sleep=" -timeout $sleeparg "
 	fi
 	button=$(xmessage $sleep -print -center \
-	    -buttons $gb:0,$EXITBUTTON:1$pb -default $gb -file $td/msg)
+	    -buttons $gb:0,$EXITBUTTON:1$pb -default $gb -file "$td"/msg)
 	case "$button" in
 	$GENBUTTON) return 0;;
 	$EXITBUTTON) exit;;
 	$PAUSEBUTTON)
 		let dur=$SECONDS-$start
-		mv $td/msg $td/msg.save
-		echo "${dur}s passed since start, pausing with $((sleeparg-dur))s left out of $origsleeparg" > $td/msg
+		mv "$td"/msg "$td"/msg.save
+		echo "${dur}s passed since start, pausing with $((sleeparg-dur))s left out of $origsleeparg" > "$td"/msg
 		msg "" "Unpause"
-		mv $td/msg.save $td/msg
+		mv "$td"/msg.save "$td"/msg
 		# logically this should never trigger, but just incase..
 		if [ dur -gt sleeparg ]; then
 			return 0
@@ -77,12 +81,12 @@ dobreak() {
 		echo "$(date +"%Y%m%d %H:%M:%S") Started"
 		echo "$projinfo"
 		[ "$info" ] && echo "$info"
-	} > $td/msg
+	} > "$td"/msg
 	let stop=SECONDS+sleep
 	msg $sleep DONE 1
 	ret=$?
 	if ! ((ret < 1)); then
-		echo "$projinfo: ${sleep}s done!" > $td/msg
+		echo "$projinfo: ${sleep}s done!" > "$td"/msg
 		msg
 	fi
 	prevmsg="$project: lasted $((sleep+SECONDS-stop))s ended $(date +"%Y %H:%M:%S")"
@@ -131,12 +135,12 @@ loadworklist() {
 			/^[\/o] '"$project"'( weight=[0-9]*$|$)/ {start=1;next}
 			/^[\/o] /{start=0}
 			/^ [\/o] /{if (start == 1) {sub("^[ ]*",""); print; next}}
-		' $WORKLIST > $td/subprojects
-		local j=0 totsub=$(($(wc -l < $td/subprojects) + 0)) k=0 rstart=${#subprojects[*]} rstop
+		' $WORKLIST > "$td"/subprojects
+		local j=0 totsub=$(($(wc -l < "$td"/subprojects) + 0)) k=0 rstart=${#subprojects[*]} rstop
 		while [ j -lt $totsub ]
 		do
 			((j++))
-			subprojects[${#subprojects[*]}]=$(head -$j $td/subprojects | tail -1)
+			subprojects[${#subprojects[*]}]=$(head -$j "$td"/subprojects | tail -1)
 		done
 		rstop=${#subprojects[*]}
 		subrangestart[i]=$rstart
@@ -254,8 +258,8 @@ else
 	LBREAK=$HACK
 fi
 
-echo "Start the cycle ?" > $td/msg
-echo "HACK=$HACK SBREAK=$SBREAK LBREAK=$LBREAK)" >> $td/msg
+echo "Start the cycle ?" > "$td"/msg
+echo "HACK=$HACK SBREAK=$SBREAK LBREAK=$LBREAK)" >> "$td"/msg
 msg "" "START"
 
 prevmsg=""
