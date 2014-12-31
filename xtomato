@@ -26,6 +26,8 @@ TTY=${TTY:-$tty}
 sound=1
 soundvol=90
 TMPDIR=${TMPDIR:-/tmp}
+[ -f $HOME/.xtomato.conf ] && . $HOME/.xtomato.conf
+
 if ! [ -d "$TMPDIR" ]; then
 	TMPDIR=/tmp
 fi
