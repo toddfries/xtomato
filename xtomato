@@ -20,6 +20,14 @@ PAUSEBUTTON="PAUSE"
 EXITBUTTON="EXIT"
 WORKLIST=~/worklist
 
+# over-ride in conf file if more action needed
+_start_break() {
+	:
+}
+_end_break() {
+	:
+}
+
 tty=`tty`
 tty=`basename $tty`
 TTY=${TTY:-$tty}
@@ -61,6 +69,7 @@ msg() {
 		$EXITBUTTON) exit;;
 		$PAUSEBUTTON)
 			let dur=$SECONDS-$start
+			_start_break
 			mv "$td"/msg "$td"/msg.save
 			{
 			  echo -n "${dur}s passed since start, "
@@ -69,6 +78,7 @@ msg() {
 			} > "$td"/msg
 			msg "" "Unpause"
 			mv "$td"/msg.save "$td"/msg
+			_end_break
 			# logically this should never trigger, but just incase..
 			if [ dur -gt sleeparg ]; then
 				return 0
@@ -302,7 +312,9 @@ while true; do
 		else
 			weightinfo=""
 		fi
+		_end_break
 		dobreak $HACK "Work(${projects[currentproject]}$weightinfo)" "$info"
+		_start_break
 
 		[ scounter -lt 4 ] && dobreak ${SBREAK} \
 		    "Record time, drink, check {email, IM, etc.} short break"
