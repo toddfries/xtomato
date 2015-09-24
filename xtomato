@@ -49,29 +49,34 @@ msg() {
 	
 	while :
 	do
-	local start=$SECONDS dur
-	if [ "$sleeparg" ]; then
-		sleep=" -timeout $sleeparg "
-	fi
-	button=$(xmessage $sleep -print -center \
-	    -buttons $gb:0,$EXITBUTTON:1$pb -default $gb -file "$td"/msg)
-	case "$button" in
-	$GENBUTTON) return 0;;
-	$EXITBUTTON) exit;;
-	$PAUSEBUTTON)
-		let dur=$SECONDS-$start
-		mv "$td"/msg "$td"/msg.save
-		echo "${dur}s passed since start, pausing with $((sleeparg-dur))s left out of $origsleeparg" > "$td"/msg
-		msg "" "Unpause"
-		mv "$td"/msg.save "$td"/msg
-		# logically this should never trigger, but just incase..
-		if [ dur -gt sleeparg ]; then
-			return 0
+		local start=$SECONDS dur
+		if [ "$sleeparg" ]; then
+			sleep=" -timeout $sleeparg "
 		fi
-		let sleeparg=sleeparg-dur
-	;;
-	*) return 1;;
-	esac
+		button=$(xmessage $sleep -print -center \
+		    -buttons $gb:0,$EXITBUTTON:1$pb -default $gb \
+		    -file "$td"/msg)
+		case "$button" in
+		$GENBUTTON) return 0;;
+		$EXITBUTTON) exit;;
+		$PAUSEBUTTON)
+			let dur=$SECONDS-$start
+			mv "$td"/msg "$td"/msg.save
+			{
+			  echo -n "${dur}s passed since start, "
+			  echo -n "pausing with $((sleeparg-dur))s left out "
+			  echo    "of $origsleeparg"
+			} > "$td"/msg
+			msg "" "Unpause"
+			mv "$td"/msg.save "$td"/msg
+			# logically this should never trigger, but just incase..
+			if [ dur -gt sleeparg ]; then
+				return 0
+			fi
+			let sleeparg=sleeparg-dur
+		;;
+		*) return 1;;
+		esac
 	done
 }
 
