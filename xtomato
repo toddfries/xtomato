@@ -61,9 +61,13 @@ msg() {
 		if [ "$sleeparg" ]; then
 			sleep=" -timeout $sleeparg "
 		fi
-		button=$(xmessage $sleep -print -center \
+		xmcmd="xmessage $sleep -print -center \
 		    -buttons $gb:0,$EXITBUTTON:1$pb -default $gb \
-		    -file "$td"/msg)
+		    -file "$td"/msg"
+		if ((verbose > 0)); then
+			echo "-> $xmcmd"
+		fi
+		button=$($xmcmd)
 		case "$button" in
 		$GENBUTTON) return 0;;
 		$EXITBUTTON) exit;;
