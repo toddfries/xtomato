@@ -265,7 +265,7 @@ if (( ${#projects[*]} > 0 )); then
 			        echo "($HACK * ${#projects[*]} * ${weights[i]} ) / $totalweight"
 			    } | bc)
 		else
-			weightsecs=$HACK
+			weightsecs[i]=$HACK
 		fi
 		((i++))
 	done
@@ -313,11 +313,19 @@ while true; do
 		fi
 		if [ weights[currentproject] > 0 ]; then
 			weightinfo=" weight=${weights[currentproject]} weightsecs=${weightsecs[currentproject]}"
+			thishack=${weightsecs[currentproject]}
+			# round, is there a ksh way?
+			thishack=$(perl -e "printf \"%d\n\",$thishack + 0.5;")
+			# minimum is 1s
+			if [ thishack -eq 0 ]; then
+				thishack=1
+			fi
 		else
 			weightinfo=""
+			thishack=$HACK
 		fi
 		_end_break
-		dobreak $HACK "Work(${projects[currentproject]}$weightinfo)" "$info"
+		dobreak $thishack "Work(${projects[currentproject]}$weightinfo)" "$info"
 		_start_break
 
 		[ scounter -lt 4 ] && dobreak ${SBREAK} \
