@@ -34,7 +34,8 @@ TTY=${TTY:-$tty}
 sound=1
 soundvol=90
 TMPDIR=${TMPDIR:-/tmp}
-[ -f $HOME/.xtomato.conf ] && . $HOME/.xtomato.conf
+conf=$HOME/config/xtomato/xtomato.conf
+[ -f $conf ] && . $conf
 
 if ! [ -d "$TMPDIR" ]; then
 	TMPDIR=/tmp
@@ -122,8 +123,12 @@ set -A projects
 set -A info
 set -A subprojects
 loadworklist() {
-	[ -f $WORKLIST ] || return
+	if ! [ -f $WORKLIST ]; then
+		echo "WORKLIST=$WORKLIST EEXISTS"
+		return
+	fi
 	if ((verbose > 1)); then
+		echo "Loading WORKLIST=$WORKLIST ..."
 		set -x
 	fi
 	set -A projects $( awk '
@@ -140,6 +145,10 @@ loadworklist() {
 			next}
 		/^[\/o] /{
 			print "0"} ' $WORKLIST)
+
+	if ((verbose >> 1)); then
+		echo "Projects: ${projects[*]}"
+	fi
 	set -A weightsecs
 	set -A info
 	set -A subprojects
