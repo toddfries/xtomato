@@ -20,6 +20,8 @@ PAUSEBUTTON="PAUSE"
 EXITBUTTON="EXIT"
 WORKLIST=~/worklist
 
+alias local=typeset
+
 # over-ride in conf file if more action needed
 _start_break() {
 	:
