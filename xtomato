@@ -30,14 +30,27 @@ _end_break() {
 	:
 }
 
+# load defaults before reading config
+
 tty=`tty`
 tty=`basename $tty`
 TTY=${TTY:-$tty}
 sound=1
 soundvol=90
 TMPDIR=${TMPDIR:-/tmp}
+HACK=$((5 * 60))
+TOTALHACK=0
+verbose=0
+bezerk=0
+
+
 conf=$HOME/config/xtomato/xtomato.conf
-[ -f $conf ] && . $conf
+if [ -f $conf ]; then
+	echo "Loading config $conf"
+	. $conf
+fi
+
+	
 
 if ! [ -d "$TMPDIR" ]; then
 	TMPDIR=/tmp
@@ -178,7 +191,7 @@ loadworklist() {
 		subrangestart[i]=$rstart
 		subrangestop[i]=$rstop
 		subcurrent[i]=0
-		if [ weights[i] > 0 ]; then
+		if (( weights[i] > 0 )); then
 			weightinfo=", weight ${weights[i]}"
 		else
 			weightinfo=""
@@ -212,33 +225,43 @@ loadworklist() {
 	done
 }
 
-HACK=$((5 * 60))
-TOTALHACK=0
-verbose=0
-bezerk=0
+usage() {
+	echo "$0 [ -b ] [ -c <conf> ] [ -t <hacktime> ] [ -T <totaltime> ]"
+	echo "   [ -v ] [ -w <worklist> ] [ -h ]"
+	echo
+	echo "   -b  - bezerk, no breaks"
+	echo "   -v  - verbose, use multiple times to increase"
+	echo "   -h  - help"
+	exit 1
+}
+
 while [ "$1" ]
 do
 	case "$1" in
 	-b)	# bezerk mode (aka no breaks)
-		((bezerk++));shift
+		((bezerk++))
 	;;
 	-c)	# config file
-		[ -f "$2" ] && . $2 || exit 1 ; shift; shift
+		[ -f "$2" ] && . $2 || exit 1 ; shift
 	;;
 	-t)	# one work slot timing
-		shift;HACK="$1";shift
+		shift;HACK="$1"
 	;;
 	-T)	# total estimated time to divide amongst worklist projects
-		shift;TOTALHACK="$1";shift
+		shift;TOTALHACK="$1"
 	;;
 	-v)	# verbosity
-		((verbose++));shift
+		((verbose++))
 	;;
 	-w)	# worklist
-		[ -f "$2" ] && WORKLIST="$2" || exit 1; shift; shift
+		[ -f "$2" ] && WORKLIST="$2" || exit 1; shift
+	;;
+	-h)	# help
+		usage
 	;;
 	*) break;;
 	esac
+	shift
 done
 loadworklist
 
@@ -282,6 +305,8 @@ if (( ${#projects[*]} > 0 )); then
 	done
 	
 fi
+
+# breaks are hard coded for 'tomato' method, think hard before changing
 if ((bezerk > 0)); then
 	SBREAK=0
 	LBREAK=0
