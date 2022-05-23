@@ -19,6 +19,7 @@ GENBUTTON="ACK"
 PAUSEBUTTON="PAUSE"
 EXITBUTTON="EXIT"
 WORKLIST=~/worklist
+pid=$$
 
 alias local=typeset
 
@@ -28,6 +29,9 @@ _start_break() {
 }
 _end_break() {
 	:
+}
+log() {
+	plogger -t "xtomato[$pid]" -p user.info
 }
 
 # load defaults before reading config
@@ -79,10 +83,11 @@ msg() {
 		fi
 		xmcmd="xmessage $sleep -print -center \
 		    -buttons $gb:0,$EXITBUTTON:1$pb -default $gb \
-		    -file "$td"/msg"
+		    -file $td/msg"
 		if ((verbose > 0)); then
 			echo "-> $xmcmd"
 		fi
+		log < $td/msg
 		button=$($xmcmd)
 		case "$button" in
 		$GENBUTTON) return 0;;
@@ -196,7 +201,7 @@ loadworklist() {
 		else
 			weightinfo=""
 		fi
-		echo "Loaded project $project with $((rstop-rstart)) subprojects$weightinfo"
+		echo "Loaded project $project with $((rstop-rstart)) subprojects$weightinfo" | tee /dev/tty | log
 		info[i]=$(awk 'BEGIN {start=0}
 			/^[\/o] '"$project"'( weight=[0-9]*$|$)/ {start=1;next}
 			/^[\/o] /{start=0;next}
@@ -276,7 +281,7 @@ if (( ${#projects[*]} > 0 )); then
 		echo "Guessing HACK + SBREAK = TOTALHACK / (proj + sbreak) = $(( TOTALHACK / ${#projects[*]} ))"
 		echo "Guessing HACK = $(( TOTALHACK / ${#projects[*]} - SBREAK ))"
 		HACK=$(( TOTALHACK / ${#projects[*]} - SBREAK ))
-	fi
+	fi | tee /dev/tty | log
 	i=0
 	while (( i < ${#weights[*]} ))
 	do
