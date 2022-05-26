@@ -25,10 +25,11 @@ It looks like this (indented for clarity here, the
 only supported as spaces at this time):
 
     o project weight=100
-     o subproject
+     o subproject1
       o details per subproject
         can even wrap around
      o subproject2
+     o subproject3
     o project weight=200
 
 And xtomato will automatically select the first project and the first
@@ -36,6 +37,29 @@ subproject for the first work task, presenting subsequent projects
 and cycling through the subprojects of each project as applicable.
 
   "It takes the 'human time' out of deciding what to do next"
+
+Note the only granularity is for project+subproject, anything under
+subproject is included when displaying info about the task to work on.
+
+If you have a desire to do:
+
+   o client1
+    o projects
+     o subproject1
+     o subproject2
+     ...
+    o maintenance
+
+It will be necessary to rethink this as:
+
+   o client1
+    o projects-subproject1
+    o projects-subproject2
+     ...
+    o maintenance
+
+Also note, project and subprojects are currently only supported as a single
+word.
 
 This is an even-steven algorithm.
 
