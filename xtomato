@@ -14,7 +14,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-DING="~/tmp/drumhit.wav"
+DING=""
 GENBUTTON="ACK"
 PAUSEBUTTON="PAUSE"
 EXITBUTTON="EXIT"
@@ -48,7 +48,7 @@ verbose=0
 bezerk=0
 
 
-conf=$HOME/config/xtomato/xtomato.conf
+conf=$HOME/.config/xtomato/xtomato.conf
 if [ -f $conf ]; then
 	echo "Loading config $conf"
 	. $conf
@@ -66,6 +66,8 @@ msg() {
 	local sleep="" sleeparg="$1" gb="$2" canpause="$3" pb="" origsleeparg
 	if [ sound -eq 1 -a -f ${DING} ]; then
 		aucat -v $soundvol -i ${DING}
+	else
+		echo "noding: sound=$sound ding=${DING}"
 	fi
 	if ! [ "$gb" ]; then
 		gb="$GENBUTTON"
@@ -147,7 +149,7 @@ loadworklist() {
 		echo "WORKLIST=$WORKLIST EEXISTS"
 		return
 	fi
-		echo "Loading WORKLIST=$WORKLIST ..."
+	echo "Loading WORKLIST=$WORKLIST ..."
 	if ((verbose > 1)); then
 		set -x
 	fi
@@ -251,7 +253,13 @@ do
 		((bezerk++))
 	;;
 	-c)	# config file
-		[ -f "$2" ] && . $2 || exit 1 ; shift
+		if [ -f "$2" ]; then
+			echo Loading config $2
+			. $2
+		else
+			exit 1
+		fi
+		shift
 	;;
 	-t)	# one work slot timing
 		shift;clihack="$1"

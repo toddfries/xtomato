@@ -1,0 +1,11 @@
+integrate with multiple input queues by using weight
+
+   o client1 weight=100
+    o projects-subproject1
+    o projects-subproject2
+     ...
+    o maintenance
+   o Now weight=500 file=$HOME/now
+   o Soon weight=10 file=$HOME/sooner
+   o Later weight=1 file=$HOME/later
+
