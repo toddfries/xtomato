@@ -1,9 +1,12 @@
+# xtomato
+
 Originally inspired from some very basic shellcode from
 Thordur Bjornsson this time slicing of human time initiated
 by computer application has grown a bit since it began.
 
 The basic premise is
 
+```
   (
     (
       work
@@ -13,6 +16,7 @@ The basic premise is
     replace last <short break> with <long break>
   )
   repeat while working
+```
 
 ...for optimal productivity.  For further details, see
 http://en.wikipedia.org/wiki/Pomodoro_Technique .
@@ -24,6 +28,7 @@ It looks like this (indented for clarity here, the
 'o project' must be left aligned and whitespace is
 only supported as spaces at this time):
 
+```
     o project weight=100
      o subproject1
       o details per subproject
@@ -31,6 +36,7 @@ only supported as spaces at this time):
      o subproject2
      o subproject3
     o project weight=200
+```
 
 And xtomato will automatically select the first project and the first
 subproject for the first work task, presenting subsequent projects
@@ -43,20 +49,24 @@ subproject is included when displaying info about the task to work on.
 
 If you have a desire to do:
 
+```
    o client1
     o projects
      o subproject1
      o subproject2
      ...
     o maintenance
+```
 
 It will be necessary to rethink this as:
 
+```
    o client1
     o projects-subproject1
     o projects-subproject2
      ...
     o maintenance
+```
 
 Also note, project and subprojects are currently only supported as a single
 word.
@@ -73,9 +83,11 @@ have given the typical hack time.  In the above example, if hack time
 is typically 1000s then weight=100 will receive 660s and weight=200 will
 receive 1320s.  Basically the formula goes like this:
 
+```
 	HACK * projectcount = totalhacktime
 
 	projecthacktime = totalhacktime * ( weight / total_of_all_weights )
+```
 
 This is yet to be implemented but at least the program parses the weights.
 
@@ -90,16 +102,16 @@ in the form of bugfixes, diffs, or pull requests, let me know at
 todd@fries.net.
 
 Thanks,
+```
 -- 
-Todd Fries .. todd@fries.net
+Todd Fries .. todd@fries.net .. twitter:@unix2mars .. github:toddfries
 
- ____________________________________________
-|                                            \  1.636.410.0632 (voice)
-| Free Daemon Consulting, LLC                \  1.405.227.9094 (voice)
-| http://FreeDaemonConsulting.com            \  1.866.792.3418 (FAX)
-| PO Box 16169, Oklahoma City, OK 73113      \  sip:freedaemon@ekiga.net
-| "..in support of free software solutions." \  sip:4052279094@ekiga.net
- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-                                                 
-              37E7 D3EB 74D0 8D66 A68D  B866 0326 204E 3F42 004A
-                        http://todd.fries.net/pgp.txt
+Label   | Data           | Notes
+--------+----------------+------------------------------
+Motto   | In support of  | free software solutions.
+Phone   | 1.405.252.0702 | SMS/voice everywhere
+Mobile  | 1.405.203.6124 | SMS/voice mobile only
+Employer| self employed  | Free Daemon Consulting, LLC
+Address | PO Box 16169   | Oklahoma City, OK 73113-2169
+PGP     | 3F42004A       |
+```
