@@ -45,7 +45,7 @@ TMPDIR=${TMPDIR:-/tmp}
 HACK=$((5 * 60))
 TOTALHACK=0
 verbose=0
-bezerk=0
+berzerk=0
 
 
 conf=$HOME/.config/xtomato/xtomato.conf
@@ -236,7 +236,7 @@ usage() {
 	echo "$0 [ -b ] [ -c <conf> ] [ -t <hacktime> ] [ -T <totaltime> ]"
 	echo "   [ -v ] [ -w <worklist> ] [ -h ]"
 	echo
-	echo "   -b  - bezerk, no breaks"
+	echo "   -b  - berzerk, no breaks"
 	echo "   -v  - verbose, use multiple times to increase"
 	echo "   -h  - help"
 	exit 1
@@ -249,8 +249,8 @@ clithack=""
 while [ "$1" ]
 do
 	case "$1" in
-	-b)	# bezerk mode (aka no breaks)
-		((bezerk++))
+	-b)	# berzerk mode (aka no breaks)
+		((berzerk++))
 	;;
 	-c)	# config file
 		if [ -f "$2" ]; then
@@ -335,7 +335,7 @@ if (( ${#projects[*]} > 0 )); then
 fi
 
 # breaks are hard coded for 'tomato' method, think hard before changing
-if ((bezerk > 0)); then
+if ((berzerk > 0)); then
 	SBREAK=0
 	LBREAK=0
 else
