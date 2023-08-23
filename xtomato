@@ -246,6 +246,9 @@ cliworklist=""
 clihack=""
 clithack=""
 
+clisbreak=""
+clilbreak=""
+
 while [ "$1" ]
 do
 	case "$1" in
@@ -267,6 +270,12 @@ do
 	-T)	# total estimated time to divide amongst worklist projects
 		shift;clithack="$1"
 	;;
+	-s)	# short break time override
+		shift;clisbreak="$1"
+	;;
+	-l)	# long break time override
+		shift;clilbreak="$1"
+	;;
 	-v)	# verbosity
 		((verbose++))
 	;;
@@ -281,6 +290,8 @@ do
 	shift
 done
 
+
+
 # cli override
 if [ "$cliworklist" -a -f "$cliworklist" ]; then
 	WORKLIST=$cliworklist
@@ -290,6 +301,22 @@ if [ "$clihack" ]; then
 fi
 if [ "$clithack" ]; then
 	TOTALHACK=$clithack
+fi
+# breaks are hard coded for 'tomato' method, think hard before changing
+if ((berzerk > 0)); then
+	SBREAK=0
+	LBREAK=0
+else
+	if [ "$clisbreak" ]; then
+		SBREAK=$clisbreak
+	else
+		SBREAK=$((HACK/10))
+	fi
+	if [ "$clilbreak" ]; then
+		LBREAK=$clilbreak
+	else
+		LBREAK=$HACK
+	fi
 fi
 loadworklist
 
@@ -332,15 +359,6 @@ if (( ${#projects[*]} > 0 )); then
 		((i++))
 	done
 	
-fi
-
-# breaks are hard coded for 'tomato' method, think hard before changing
-if ((berzerk > 0)); then
-	SBREAK=0
-	LBREAK=0
-else
-	SBREAK=$((HACK/10))
-	LBREAK=$HACK
 fi
 
 echo "Start the cycle ?" > "$td"/msg
