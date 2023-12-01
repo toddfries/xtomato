@@ -91,6 +91,14 @@ receive 1320s.  Basically the formula goes like this:
 
 This is yet to be implemented but at least the program parses the weights.
 
+Other use cases involve needing to get one 'round' of progress in given a
+known hard stop scenario.
+
+```
+ xtomato -T $((60*30)) # 30min before hard stop
+ xtomato -b            # berzerk mode (from doom) aka no breaks
+```
+
 Someday we can all say "pay me more to get more weight to a 'project'"
 or even let others decide what weight the subprojects associated with
 their desires get.
